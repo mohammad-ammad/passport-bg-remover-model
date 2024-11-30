@@ -1,5 +1,9 @@
 flask
-rembg
 pillow
+rembg
 python-dotenv
 werkzeug
+uuid
+onnxruntime
+opencv-python-headless
+numpy
