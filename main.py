@@ -4,9 +4,8 @@ from rembg import remove
 from PIL import Image
 from werkzeug.utils import secure_filename
 import uuid
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # Load environment variables
 
-# Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
@@ -19,14 +18,6 @@ SERVER_BASE_URL = os.getenv('SERVER_BASE_URL', 'http://127.0.0.1:5000')
 # Ensure folders exist
 os.makedirs(INPUT_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
-def convert_image_mode(image):
-    """Convert image to appropriate mode for saving"""
-    if image.mode in ('RGBA', 'LA'):
-        background = Image.new('RGB', image.size, (255, 255, 255))
-        background.paste(image, mask=image.split()[-1])
-        return background
-    return image
 
 @app.route('/output/<filename>')
 def serve_output_image(filename):
@@ -56,18 +47,15 @@ def remove_background():
         # Open input image
         input_image = Image.open(input_path)
         
-        # Remove background
+        # Remove background and preserve transparency
         output_image = remove(input_image)
         
-        # Convert image mode if needed
-        output_image = convert_image_mode(output_image)
-        
         # Determine file extension
-        output_filename = f"no_bg_{unique_filename}"
+        output_filename = f"no_bg_{unique_filename.split('.')[-0]}.png"
         output_path = os.path.join(OUTPUT_FOLDER, output_filename)
         
-        # Save output image
-        output_image.save(output_path)
+        # Save output image with transparency
+        output_image.save(output_path, format='PNG')
         
         # Prepare static URL
         static_url = f"{SERVER_BASE_URL}/output/{output_filename}"
